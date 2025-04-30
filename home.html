@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>버튼 서랍장</title>
+    <link rel="stylesheet" href="home.css">
+    <script src="grid-effect.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-buttons">
+            <a href="home.html"><button class="nav-button active">HOME</button></a>
+            <a href="btti.html"><button class="nav-button">BTTI</button></a>
+            <a href="cabinet.html"><button class="nav-button">CABINET</button></a>
+            <a href="exhibition.html"><button class="nav-button">EXHIBITION</button></a>
+        </div>
+        <div class="top-buttons" id="choose-buttons">
+            <span class="choose-text" style="display: none;">CHOOSE</span>
+            <div class="number-buttons">
+                <button class="number-button" style="display: none;"><span>1</span></button>
+                <button class="number-button" style="display: none;"><span>2</span></button>
+                <button class="number-button" style="display: none;"><span>3</span></button>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="content" id="main-content">
+            <h2>버튼을 드래그하여<br>나만의 버튼 꾸미기를 해보세요.</h2>
+            <button class="start-button" id="mainStartButton">START</button>
+            <button class="info-button" id="infoButton">자세한 방법 보기</button>
+        </div>
+        <div id="wallet-content" style="display: none;">
+            <div class="wallet-image-container">
+                <div class="image-wrapper" id="wrapper-1">
+                    <img src="wallet.png" alt="지갑 이미지" class="wallet-image back-image">
+                </div>
+                <div class="image-wrapper" id="wrapper-2" style="display: none;">
+                    <img src="pouch.png" alt="파우치 이미지" class="wallet-image back-image">
+                </div>
+                <div class="image-wrapper" id="wrapper-3" style="display: none;">
+                    <img src="tie.png" alt="넥타이 이미지" class="wallet-image back-image">
+                </div>
+            </div>
+            <div class="title-submit-container">
+                <input type="text" class="title-input" placeholder="작품 제목을 입력하세요" maxlength="20">
+                <button class="submit-button">출품</button>
+            </div>
+            <div id="floating-badges"></div>
+        </div>
+    </div>
+    <a href="home.html" class="back-button" id="backButton">
+        ←
+    </a>
+    
+    <!-- 팝업창 -->
+    <div class="popup" id="infoPopup">
+        <div class="popup-content">
+            <div class="popup-header-container">
+                <div class="popup-header">
+                    <h3>자세한 방법</h3>
+                </div>
+                <div class="close-popup-container">
+                    <div class="close-popup">&times;</div>
+                </div>
+            </div>
+            <div class="popup-body">
+                <div class="info-box box-1">
+                    <p>페이지 상단에 있는 'CHOOSE' 옆<br>1,2,3 중 하나를 선택하세요</p>
+                </div>
+                <div class="arrow-down">
+                    ↓
+                </div>
+                <div class="info-box box-2">
+                    <p>마음에 드는 도안을 선택한 후,<br>버튼을 원하는 대로 드래그하여 꾸미기 완성!</p>
+                </div>
+                <button class="start-button popup-start">START</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 필수 요소 직접 참조
+            const mainContent = document.getElementById('main-content');
+            const walletContent = document.getElementById('wallet-content');
+            const mainStartButton = document.getElementById('mainStartButton');
+            const popupStart = document.querySelector('.popup-start');
+            const infoButton = document.getElementById('infoButton');
+            const closePopup = document.querySelector('.close-popup');
+            const infoPopup = document.getElementById('infoPopup');
+            const backButton = document.getElementById('backButton');
+            const numberButtons = document.querySelectorAll('.number-button');
+            
+            // 기본 변수 설정
+            let currentImage = 1;
+            
+            // 세션 스토리지 초기화
+            sessionStorage.removeItem('pageState');
+            sessionStorage.removeItem('currentImage');
+            
+            // 모든 이벤트 리스너를 직접 연결 (onclick 사용)
+            if(mainStartButton) {
+                mainStartButton.onclick = function() {
+                    showWallet();
+                    createFloatingBadges();
+                };
+            }
+            
+            if(popupStart) {
+                popupStart.onclick = function() {
+                    showWallet();
+                    createFloatingBadges();
+                };
+            }
+            
+            if(infoButton) {
+                infoButton.onclick = function() {
+                    infoPopup.style.display = 'flex';
+                };
+            }
+            
+            if(closePopup) {
+                closePopup.onclick = function() {
+                    infoPopup.style.display = 'none';
+                };
+            }
+            
+            if(backButton) {
+                backButton.onclick = function() {
+                    returnToHome();
+                };
+            }
+            
+            // 숫자 버튼 이벤트
+            numberButtons.forEach((button, index) => {
+                button.onclick = function() {
+                    showImage(index + 1);
+                    sessionStorage.setItem('currentImage', index + 1);
+                };
+            });
+            
+            // 출품 버튼 이벤트
+            const submitButton = document.querySelector('.submit-button');
+            const titleInput = document.querySelector('.title-input');
+            if(submitButton) {
+                submitButton.onclick = function() {
+                    const title = titleInput.value.trim();
+                    
+                    if(!title) {
+                        alert('작품 제목을 입력해주세요.');
+                        return;
+                    }
+                    
+                    // 로딩 표시
+                    submitButton.disabled = true;
+                    submitButton.textContent = '처리 중...';
+                    
+                    // 스크린샷 캡처 후 저장
+                    captureScreenshot().then(imageData => {
+                        saveExhibition(title, imageData);
+                    }).catch(error => {
+                        console.error('작품 출품 실패:', error);
+                        alert('작품 출품에 실패했습니다. 다시 시도해주세요.');
+                    }).finally(() => {
+                        // 로딩 표시 제거
+                        submitButton.disabled = false;
+                        submitButton.textContent = '출품';
+                    });
+                };
+            }
+            
+            // 주요 함수들
+            
+            function showWallet(saveState = true, imageNum = 1) {
+                mainContent.style.display = 'none';
+                walletContent.style.display = 'flex';
+                
+                // CHOOSE 텍스트와 숫자 버튼들을 표시
+                document.querySelector('.choose-text').style.display = '';
+                document.querySelectorAll('.number-button').forEach((button, index) => {
+                    if (index < 3) { // 1, 2, 3 버튼만 표시
+                        button.style.display = '';
+                    }
+                });
+                
+                showImage(imageNum);
+                
+                document.querySelectorAll('.nav-button').forEach(button => {
+                    button.classList.remove('active');
+                });
+                document.querySelector('.nav-buttons a:first-child .nav-button').classList.add('active');
+                
+                if (infoPopup.style.display === 'flex') {
+                    infoPopup.style.display = 'none';
+                }
+                
+                if (saveState) {
+                    // sessionStorage로 변경 및 타임스탬프 추가
+                    const stateData = {
+                        state: 'wallet',
+                        timestamp: Date.now()
+                    };
+                    sessionStorage.setItem('pageState', JSON.stringify(stateData));
+                    sessionStorage.setItem('currentImage', imageNum);
+                }
+                
+                // 항상 뱃지 생성 확실하게 호출
+                setTimeout(createFloatingBadges, 100);
+            }
+            
+            function showImage(num) {
+                for (let i = 1; i <= 3; i++) {
+                    const wrapper = document.getElementById(`wrapper-${i}`);
+                    if (wrapper) {
+                        wrapper.style.display = 'none';
+                    }
+                }
+                
+                const activeWrapper = document.getElementById(`wrapper-${num}`);
+                if (activeWrapper) {
+                    activeWrapper.style.display = 'block';
+                    currentImage = num;
+                }
+                
+                numberButtons.forEach((button, index) => {
+                    if (index + 1 === num) {
+                        button.classList.add('active-number');
+                    } else {
+                        button.classList.remove('active-number');
+                    }
+                });
+            }
+            
+            function returnToHome() {
+                mainContent.style.display = 'flex';
+                walletContent.style.display = 'none';
+                
+                // CHOOSE 텍스트와 1, 2, 3 버튼만 숨김 (야간모드 버튼은 유지)
+                document.querySelector('.choose-text').style.display = 'none';
+                document.querySelectorAll('.number-button').forEach((button, index) => {
+                    if (index < 3) { // 1, 2, 3 버튼만 숨김
+                        button.style.display = 'none';
+                    }
+                });
+                
+                sessionStorage.removeItem('pageState');
+                sessionStorage.removeItem('currentImage');
+                
+                document.querySelectorAll('.nav-button').forEach(button => {
+                    button.classList.remove('active');
+                });
+                document.querySelector('.nav-buttons a:first-child .nav-button').classList.add('active');
+            }
+            
+            function captureScreenshot() {
+                try {
+                    // 1. 현재 활성화된 이미지 래퍼 찾기
+                const activeWrapper = document.querySelector(`.image-wrapper[id="wrapper-${currentImage}"]`);
+                if (!activeWrapper) {
+                    console.error('활성화된 이미지 래퍼를 찾을 수 없습니다.');
+                        alert('이미지를 찾을 수 없습니다.');
+                    return Promise.reject('활성화된 이미지를 찾을 수 없습니다.');
+                }
+                
+                    // 2. 현재 활성화된 이미지의 위치와 크기 가져오기
+                    const walletRect = activeWrapper.getBoundingClientRect();
+                    
+                    // 3. 모든 뱃지의 현재 위치를 기록 (드래그된 위치 반영)
+                    const badges = document.querySelectorAll('.floating-badge');
+                    const badgePositions = [];
+                    
+                    badges.forEach(badge => {
+                        const badgeRect = badge.getBoundingClientRect();
+                        // 뱃지와 활성화된 이미지가 겹치는지 확인
+                        const isOverlapping = !(
+                            badgeRect.right < walletRect.left ||
+                            badgeRect.left > walletRect.right ||
+                            badgeRect.bottom < walletRect.top ||
+                            badgeRect.top > walletRect.bottom
+                        );
+                        
+                        if (isOverlapping) {
+                            // 실제 DOM에서의 현재 위치를 기록 + 뱃지 크기를 20% 증가
+                            badgePositions.push({
+                                badge: badge,
+                                left: badgeRect.left - walletRect.left,
+                                top: badgeRect.top - walletRect.top,
+                                width: badgeRect.width * 1.5, // 뱃지 크기 50% 증가
+                                height: badgeRect.height * 1.5, // 뱃지 크기 50% 증가
+                                zIndex: window.getComputedStyle(badge).zIndex || 1
+                            });
+                        }
+                    });
+                    
+                    // 4. 실제 위치를 기반으로 한 캡처를 위해 새 캔버스 생성
+                    const scale = 1.5; // 베이스 스케일 조정 (2.0 -> 1.5)
+                    const sizeMultiplier = 1.8; // 전체 크기 확대 배율 감소 (2.5 -> 1.8)
+                    
+                    // 캔버스 크기를 sizeMultiplier만큼 크게 설정
+                    const resultCanvas = document.createElement('canvas');
+                    resultCanvas.width = walletRect.width * scale * sizeMultiplier;
+                    resultCanvas.height = walletRect.height * scale * sizeMultiplier;
+                    const ctx = resultCanvas.getContext('2d');
+                    
+                    // 5. 먼저 wallet 이미지 캡처
+                return html2canvas(activeWrapper, {
+                    backgroundColor: null,
+                    useCORS: true,
+                        scale: scale,
+                        allowTaint: true,
+                        logging: false
+                    }).then(walletCanvas => {
+                        // wallet 캔버스를 확대해서 결과 캔버스에 그리기
+                        ctx.drawImage(
+                            walletCanvas, 
+                            0, 0, 
+                            walletCanvas.width, walletCanvas.height, 
+                            0, 0, 
+                            resultCanvas.width, resultCanvas.height
+                        );
+                        
+                        // 6. 각 뱃지를 개별적으로 캡처하여 올바른 위치에 그리기
+                        const promises = badgePositions.map(pos => {
+                            return html2canvas(pos.badge, {
+                                backgroundColor: null,
+                                useCORS: true,
+                                scale: scale,
+                                allowTaint: true,
+                                logging: false
+                            }).then(badgeCanvas => {
+                                // 캡처된 뱃지를 결과 캔버스의 올바른 위치에 확대하여 그리기
+                                ctx.drawImage(
+                                    badgeCanvas, 
+                                    0, 0, 
+                                    badgeCanvas.width, badgeCanvas.height,
+                                    pos.left * scale * sizeMultiplier, 
+                                    pos.top * scale * sizeMultiplier, 
+                                    pos.width * scale * sizeMultiplier, 
+                                    pos.height * scale * sizeMultiplier
+                                );
+                            });
+                        });
+                        
+                        // 모든 뱃지 캡처가 완료될 때까지 기다림
+                        return Promise.all(promises).then(() => {
+                            // 데이터 압축 옵션 - 품질 0.6으로 설정 (0.0-1.0)
+                            return resultCanvas.toDataURL('image/jpeg', 0.6);
+                        });
+                }).catch(error => {
+                    console.error('스크린샷 캡처 실패:', error);
+                        alert('스크린샷 캡처에 실패했습니다.');
+                    throw error;
+                });
+                } catch (error) {
+                    console.error('캡처 중 오류:', error);
+                    alert('이미지 캡처 중 오류가 발생했습니다.');
+                    return Promise.reject(error);
+                }
+            }
+            
+            function saveExhibition(title, imageData) {
+                try {
+                    // 1. 데이터 유효성 검사
+                    if (!title || !imageData) {
+                        console.error('제목 또는 이미지 데이터가 없습니다.');
+                        alert('제목과 이미지가 필요합니다.');
+                        return;
+                    }
+                    
+                    // 2. 데이터 준비 - 최소한의 필요한 데이터만 저장
+                    const newItem = {
+                        id: Date.now(),
+                    title: title,
+                    imageData: imageData,
+                    date: new Date().toISOString(),
+                        type: currentImage // imageType -> type으로 축소
+                    };
+                    
+                    // 3. 세션 스토리지에서 전시 아이템 가져오기
+                    let exhibitionItems = [];
+                    try {
+                        const savedItems = sessionStorage.getItem('exhibitionItems');
+                        if (savedItems) {
+                            exhibitionItems = JSON.parse(savedItems);
+                        }
+                        // 배열이 아닌 경우 초기화
+                        if (!Array.isArray(exhibitionItems)) {
+                            exhibitionItems = [];
+                        }
+                    } catch (e) {
+                        console.warn('기존 데이터 파싱 실패, 새로 시작합니다.', e);
+                        exhibitionItems = [];
+                    }
+                    
+                    // 4. 기존 작품 개수 확인 (10개 초과 시 오래된 작품 삭제)
+                    if (exhibitionItems.length >= 10) {
+                        // 날짜순으로 정렬 (오래된 것이 앞으로)
+                        exhibitionItems.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        // 가장 오래된 작품 삭제
+                        exhibitionItems.splice(0, 1);
+                        console.log("가장 오래된 작품을 삭제하여 공간 확보");
+                    }
+                    
+                    // 5. 새 아이템 추가
+                    exhibitionItems.push(newItem);
+                    
+                    // 6. 세션 스토리지에 저장
+                    try {
+                        sessionStorage.setItem('exhibitionItems', JSON.stringify(exhibitionItems));
+                alert('작품이 성공적으로 출품되었습니다!');
+                        window.location.href = 'exhibition.html';
+                    } catch (e) {
+                        console.error('세션 스토리지 저장 실패:', e);
+                        alert('저장 중 오류가 발생했습니다. 저장 공간이 부족할 수 있습니다.');
+                        
+                        // 저장 실패 시 추가 처리
+                        if (exhibitionItems.length > 1) {
+                            // 새 아이템 제거하고 기존 아이템 반 정도 삭제
+                            exhibitionItems.pop(); // 새로 추가한 아이템 제거
+                            const keepCount = Math.ceil(exhibitionItems.length / 2);
+                            // 최신 keepCount 개수만 유지
+                            exhibitionItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+                            exhibitionItems = exhibitionItems.slice(0, keepCount);
+                            
+                            try {
+                                // 다시 저장 시도
+                                sessionStorage.setItem('exhibitionItems', JSON.stringify(exhibitionItems));
+                                sessionStorage.setItem('recovery_message', '저장 공간 부족으로 일부 이전 작품이 삭제되었습니다.');
+                            } catch (e2) {
+                                // 그래도 실패하면 모두 삭제
+                                sessionStorage.removeItem('exhibitionItems');
+                                alert('저장 공간이 매우 부족합니다. 이전 작품들이 모두 삭제되었습니다.');
+                            }
+                        } else {
+                            // 단일 아이템 처리에 실패한 경우
+                            sessionStorage.removeItem('exhibitionItems');
+                        }
+                    }
+                } catch (error) {
+                    console.error('작품 저장 실패:', error);
+                    alert('작품 저장에 실패했습니다. 다시 시도해주세요.');
+                }
+            }
+            
+            // 뱃지 이미지들이 떠다니는 애니메이션을 위한 JavaScript
+            const floatingBadges = document.getElementById('floating-badges');
+            
+            function createFloatingBadges() {
+                const floatingBadges = document.getElementById('floating-badges');
+                floatingBadges.innerHTML = '';
+                const placedImages = [];
+                
+                // wallet 이미지 영역 계산
+                const walletWrapper = document.querySelector('.wallet-image-container');
+                const titleContainer = document.querySelector('.title-submit-container');
+                const walletRect = walletWrapper.getBoundingClientRect();
+                const titleRect = titleContainer.getBoundingClientRect();
+                const padding = 20;
+                
+                // 네비게이션 바 영역 계산
+                const navBar = document.querySelector('.top-nav');
+                const navBarRect = navBar.getBoundingClientRect();
+                const navBarHeight = navBarRect.height;
+                
+                // 화면 가장자리 여백 (15mm를 픽셀로 변환)
+                const edgeMargin = 57;
+
+                // 이미지 크기 범위 - 크기를 크게 설정
+                let minSize = 150;
+                let maxSize = 250;
+                
+                // 왼쪽/오른쪽 영역 위치 계산
+                const leftAreaStart = edgeMargin;
+                const leftAreaEnd = walletRect.left - padding;
+                const leftAreaWidth = leftAreaEnd - leftAreaStart;
+                
+                const rightAreaStart = walletRect.right + padding;
+                const rightAreaEnd = window.innerWidth - edgeMargin;
+                const rightAreaWidth = rightAreaEnd - rightAreaStart;
+                
+                // 위 아래 여백을 제외한 높이 (네비게이션 바 고려)
+                const topMargin = navBarHeight + 30; // 네비게이션 바 높이 + 여유 공간
+                const availableHeight = window.innerHeight - topMargin - edgeMargin;
+                
+                // 배치 가능한 이미지 수를 계산하는 함수
+                function calculatePossibleImages() {
+                    // 영역 면적 계산
+                    const leftArea = leftAreaWidth * availableHeight;
+                    const rightArea = rightAreaWidth * availableHeight;
+                    const totalArea = leftArea + rightArea;
+                    
+                    // 평균 이미지 크기 (간격 포함)
+                    const avgImageSize = (minSize + maxSize) / 2;
+                    const avgImageArea = avgImageSize * avgImageSize * 1.2; // 간격 감안
+                    
+                    // 예상 이미지 수
+                    return Math.floor(totalArea / avgImageArea);
+                }
+                
+                // 예상 배치 가능 이미지 수 확인
+                const estimatedCount = calculatePossibleImages();
+                console.log(`예상 배치 가능 이미지 수: ${estimatedCount}`);
+                
+                // 필요한 경우 이미지 크기 자동 조정
+                if (estimatedCount < 24) {
+                    const scaleFactor = Math.sqrt(estimatedCount / 24) * 0.95;
+                    minSize = Math.max(120, Math.floor(minSize * scaleFactor));
+                    maxSize = Math.max(180, Math.floor(maxSize * scaleFactor));
+                    console.log(`이미지 크기 조정: ${minSize}px - ${maxSize}px`);
+                }
+                
+                // 이미지 배치를 균등하게 하기 위해 각 영역별 배치 수 결정
+                const totalLeft = 12;
+                const totalRight = 12;
+                
+                // 왼쪽 영역에 이미지 균등 배치 (좌측 6개, 중앙 6개)
+                const leftPositionsCount = totalLeft;
+                const leftImageIds = Array.from({length: leftPositionsCount}, (_, i) => i + 1);
+                
+                // 왼쪽 이미지들 (1-12)
+                for (let idx = 0; idx < leftImageIds.length; idx++) {
+                    const i = leftImageIds[idx];
+                    const badge = document.createElement('img');
+                    badge.src = `badge_png/${i}.png`;
+                    badge.className = 'floating-badge';
+                    badge.draggable = true;
+                    
+                    // 이미지 크기 (범위 내에서 랜덤)
+                    const size = minSize + Math.random() * (maxSize - minSize);
+                    badge.style.width = `${size}px`;
+                    badge.style.height = 'auto';
+                    
+                    let position = null;
+                    let attempts = 0;
+                    
+                    // 위치 찾기 시도
+                    while (!position && attempts < 500) {
+                        // 왼쪽 영역을 상하좌우로 나누어 고르게 배치
+                        let x, y;
+                        
+                        if (idx < 6) { // 앞의 6개는 왼쪽에
+                            x = leftAreaStart + Math.random() * (leftAreaWidth * 0.5 - size);
+                        } else { // 나머지 6개는 중간에
+                            x = leftAreaStart + leftAreaWidth * 0.5 + Math.random() * (leftAreaWidth * 0.5 - size);
+                        }
+                        
+                        // 상하 분배 (네비게이션 바 아래부터 시작)
+                        if (idx % 2 === 0) { // 짝수 번호는 위쪽
+                            y = topMargin + Math.random() * (availableHeight * 0.5 - size);
+                        } else { // 홀수 번호는 아래쪽
+                            y = topMargin + availableHeight * 0.5 + Math.random() * (availableHeight * 0.5 - size);
+                        }
+                        
+                        // 네비게이션 바와 겹치는지 확인
+                        if (y < topMargin) {
+                            attempts++;
+                            continue;
+                        }
+                        
+                        // wallet 영역과 겹치는지 확인
+                        if (
+                            (x + size > walletRect.left - padding && 
+                            x < walletRect.right + padding && 
+                            y + size > walletRect.top - padding && 
+                            y < walletRect.bottom + padding) ||
+                            (x + size > titleRect.left - padding && 
+                            x < titleRect.right + padding && 
+                            y + size > titleRect.top - padding && 
+                            y < titleRect.bottom + padding)
+                        ) {
+                            attempts++;
+                            continue;
+                        }
+                        
+                        // 다른 뱃지들과의 겹침 확인
+                        let overlapping = false;
+                        for (const placed of placedImages) {
+                            const dx = x - placed.x;
+                            const dy = y - placed.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            const minDistance = (size + placed.size) * 0.35;
+                            if (distance < minDistance) {
+                                overlapping = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!overlapping) {
+                            position = { x, y };
+                        }
+                        attempts++;
+                        
+                        // 마지막 시도에서는 겹침 무시하고 강제 배치
+                        if (!position && attempts >= 450) {
+                            position = { x, y };
+                            console.log(`이미지 ${i} 강제 배치: ${attempts}회 시도`);
+                        }
+                    }
+                    
+                    if (position) {
+                        badge.style.left = `${position.x}px`;
+                        badge.style.top = `${position.y}px`;
+                        placedImages.push({ x: position.x, y: position.y, size });
+                        floatingBadges.appendChild(badge);
+                        
+                        // 드래그 이벤트 처리
+                        makeDraggable(badge);
+                    }
+                }
+                
+                // 오른쪽 이미지들 (13-24)
+                const rightPositionsCount = totalRight;
+                const rightImageIds = Array.from({length: rightPositionsCount}, (_, i) => i + 13);
+                
+                for (let idx = 0; idx < rightImageIds.length; idx++) {
+                    const i = rightImageIds[idx];
+                    const badge = document.createElement('img');
+                    badge.src = `badge_png/${i}.png`;
+                    badge.className = 'floating-badge';
+                    badge.draggable = true;
+                    
+                    // 이미지 크기 (범위 내에서 랜덤)
+                    const size = minSize + Math.random() * (maxSize - minSize);
+                    badge.style.width = `${size}px`;
+                    badge.style.height = 'auto';
+                    
+                    let position = null;
+                    let attempts = 0;
+                    
+                    // 위치 찾기 시도
+                    while (!position && attempts < 500) {
+                        // 오른쪽 영역을 상하좌우로 나누어 고르게 배치
+                        let x, y;
+                        
+                        if (idx < 6) { // 앞의 6개는 왼쪽에
+                            x = rightAreaStart + Math.random() * (rightAreaWidth * 0.5 - size);
+                        } else { // 나머지 6개는 오른쪽에
+                            x = rightAreaStart + rightAreaWidth * 0.5 + Math.random() * (rightAreaWidth * 0.5 - size);
+                        }
+                        
+                        // 상하 분배 (네비게이션 바 아래부터 시작)
+                        if (idx % 2 === 0) { // 짝수 번호는 위쪽
+                            y = topMargin + Math.random() * (availableHeight * 0.5 - size);
+                        } else { // 홀수 번호는 아래쪽
+                            y = topMargin + availableHeight * 0.5 + Math.random() * (availableHeight * 0.5 - size);
+                        }
+                        
+                        // 네비게이션 바와 겹치는지 확인
+                        if (y < topMargin) {
+                            attempts++;
+                            continue;
+                        }
+                        
+                        // wallet 영역과 겹치는지 확인
+                        if (
+                            (x + size > walletRect.left - padding && 
+                            x < walletRect.right + padding && 
+                            y + size > walletRect.top - padding && 
+                            y < walletRect.bottom + padding) ||
+                            (x + size > titleRect.left - padding && 
+                            x < titleRect.right + padding && 
+                            y + size > titleRect.top - padding && 
+                            y < titleRect.bottom + padding)
+                        ) {
+                            attempts++;
+                            continue;
+                        }
+                        
+                        // 다른 뱃지들과의 겹침 확인
+                        let overlapping = false;
+                        for (const placed of placedImages) {
+                            const dx = x - placed.x;
+                            const dy = y - placed.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            const minDistance = (size + placed.size) * 0.35;
+                            if (distance < minDistance) {
+                                overlapping = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!overlapping) {
+                            position = { x, y };
+                        }
+                        attempts++;
+                        
+                        // 마지막 시도에서는 겹침 무시하고 강제 배치
+                        if (!position && attempts >= 450) {
+                            position = { x, y };
+                            console.log(`이미지 ${i} 강제 배치: ${attempts}회 시도`);
+                        }
+                    }
+                    
+                    if (position) {
+                        badge.style.left = `${position.x}px`;
+                        badge.style.top = `${position.y}px`;
+                        placedImages.push({ x: position.x, y: position.y, size });
+                        floatingBadges.appendChild(badge);
+                        
+                        // 드래그 이벤트 처리
+                        makeDraggable(badge);
+                    }
+                }
+                
+                // 배치된 이미지 수 확인
+                console.log(`배치된 이미지 수: ${placedImages.length}/24`);
+                
+                // 모든 이미지가 배치되지 않았을 경우 경고
+                if (placedImages.length < 24) {
+                    console.warn(`주의: ${24 - placedImages.length}개 이미지가 배치되지 않았습니다.`);
+                }
+            }
+
+            // 요소를 드래그 가능하게 만드는 함수
+            function makeDraggable(element) {
+                let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+                
+                element.onmousedown = dragMouseDown;
+                
+                function dragMouseDown(e) {
+                    e.preventDefault();
+                    // 마우스 위치 가져오기
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    
+                    // Z-index 증가시켜 드래그 중인 요소가 위에 보이도록 함
+                    element.style.zIndex = "1000";
+                    
+                    // 마우스가 움직일 때
+                    document.onmousemove = elementDrag;
+                    // 마우스 버튼을 놓을 때
+                    document.onmouseup = closeDragElement;
+                }
+                
+                function elementDrag(e) {
+                    e.preventDefault();
+                    // 새 위치 계산
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    
+                    // 요소의 새 위치 설정
+                    element.style.top = (element.offsetTop - pos2) + "px";
+                    element.style.left = (element.offsetLeft - pos1) + "px";
+                }
+                
+                function closeDragElement() {
+                    // 드래그 종료 시 이벤트 리스너 제거
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                    
+                    // Z-index 리셋
+                    setTimeout(() => {
+                        element.style.zIndex = "";
+                    }, 200);
+                }
+            }
+
+            function cleanupStorage() {
+                // localStorage에서 불필요한 데이터 제거
+                const localStorageKeys = ['pageState', 'currentImage', 'exhibitionItems', 'bttiTestState', 'bttiResultType', 'bttiResultShown'];
+                localStorageKeys.forEach(key => {
+                    localStorage.removeItem(key);
+                });
+            }
+            
+            // 페이지 초기화
+            cleanupStorage();
+        });
+    </script>
+</body>
+</html>

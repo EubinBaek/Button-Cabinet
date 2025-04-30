@@ -1,0 +1,556 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+@font-face {
+    font-family: 'SF Mango Bingsoo';
+    src: url('SF망고빙수 OTF.otf') format('opentype');
+}
+
+* {
+    font-family: 'SF Mango Bingsoo', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+    overflow-x: hidden; /* 가로 스크롤 방지 */
+    overflow-y: auto; /* 세로 스크롤 허용 */
+    min-height: 100vh;
+    position: relative;
+    background-color: #fff;
+}
+
+/* 스크롤바 스타일링 */
+::-webkit-scrollbar {
+    width: 5px; /* 스크롤바 너비 */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1; /* 스크롤바 트랙 배경 */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888; /* 스크롤바 핸들 색상 */
+    border-radius: 10px; /* 스크롤바 핸들 모서리 둥글게 */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555; /* 스크롤바 핸들 호버 시 색상 */
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    align-items: flex-start; /* 컨테이너 내용 좌측 정렬 */
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    width: 100%;
+    align-items: flex-start; /* 콘텐츠 좌측 정렬 */
+}
+
+h2 {
+    text-align: center;
+    font-size: 2.2em;
+    line-height: 1.5;
+    color: black;
+    letter-spacing: 0.1em;
+    margin: 0 0 20px 0;
+}
+
+.start-button {
+    padding: 20px 30px 5px 30px;
+    font-size: 2em;
+    background-color: white;
+    color: black;
+    border: 2px solid black;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    margin: 20px 0 10px 0;
+}
+
+.start-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+}
+
+.info-button {
+    padding: 5px 10px;
+    font-size: 0.9em;
+    background-color: transparent;
+    color: #666;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 5px;
+    text-decoration: underline;
+}
+
+.info-button:hover {
+    color: #333;
+}
+
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 24px 40px;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-button {
+    background: transparent;
+    border: none;
+    color: #999;
+    font-size: 2em;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 15px 7px 2px 7px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-button::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #000;
+    transition: width 0.3s ease;
+}
+
+.nav-button:hover {
+    color: #000;
+}
+
+.nav-button:hover::after {
+    width: 100%;
+}
+
+.nav-button.active {
+    color: #000;
+}
+
+.nav-button.active::after {
+    width: 100%;
+}
+
+.back-button {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #000;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    z-index: 100;
+    font-size: 24px;
+    font-family: 'SF Mango Bingsoo', sans-serif;
+}
+
+.back-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 팝업창 스타일 */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: white;
+    width: 90%;
+    max-width: 500px;
+}
+
+/* Cabinet 페이지 스타일 */
+.top-category {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 90px; /* 상단 여백 90px로 조정 */
+    padding-top: 30px; /* 상단 패딩 30px로 조정 */
+    margin-bottom: 20px;
+    padding-left: 40px; /* 좌측에 여백 추가 */
+    padding-right: 2%; /* 우측 여백 줄임 */
+}
+
+.category-buttons {
+    display: flex;
+    gap: 10px; /* 버튼 간격 줄임 */
+}
+
+.category-button {
+    border: none;
+    background: none;
+    font-size: 1.3em; /* 폰트 사이즈 키움 */
+    font-weight: 500;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 5px 0;
+    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+    text-align: left; /* 텍스트 좌측 정렬 */
+}
+
+.category-button.active {
+    color: #000;
+}
+
+.category-line {
+    height: 2px; /* 선 높이 조정 */
+    background-color: #000;
+    flex-grow: 1;
+    margin-left: 15px; /* 여백 줄임 */
+    margin-top: 5px; /* 여백 줄임 */
+    width: 98%; /* 선 더 확장 */
+}
+
+.content-section {
+    display: none;
+    width: 100%;
+    padding: 20px 40px;
+    margin-bottom: 50px; /* 하단 여백 추가 */
+}
+
+.content-section.active {
+    display: block;
+}
+
+/* 상자 프레임 스타일 */
+.box-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6x5 그리드로 변경 */
+    gap: 20px; /* 간격 늘림 */
+    width: 100%;
+    margin-top: 40px;
+    padding-bottom: 50px; /* 하단 여백 추가 */
+}
+
+.box-frame {
+    width: 100%; /* 가로 너비 설정 */
+    height: 360px; /* 세로 길이 360px로 늘림 */
+    background-color: #f8f8f8;
+    border-radius: 35px; /* 코너값 35px */
+    border: 2px solid #000; /* 검정색 2pt 윤곽선 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* space-between에서 flex-start로 변경 */
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.box-frame:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 서랍 손잡이 스타일 */
+.drawer-handle {
+    width: 90px;
+    height: 7px;
+    background-color: #fff;
+    border: 2px solid #000;
+    border-radius: 10px;
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.frame-number {
+    display: inline-block;
+    padding: 18px 22px 0px 22px;
+    background-color: white;
+    color: black;
+    font-weight: 300;
+    border-radius: 30px;
+    font-size: 2.2em;
+    margin-top: auto; /* 자동 상단 마진으로 하단에 배치 */
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid #000;  /* 테두리 추가 */
+    text-align: center;
+    width: 100px; /* 고정 너비 추가 */
+}
+
+.frame-number:hover {
+    background-color: #e0e0e0;  /* 회색 배경 */
+    transform: scale(1.05);
+}
+
+/* 반응형 스타일 */
+@media (max-width: 1200px) {
+    .box-container {
+        grid-template-columns: repeat(4, 1fr); /* 화면 작아지면 4열로 변경 */
+    }
+}
+
+@media (max-width: 768px) {
+    h2 {
+        font-size: 1.8em;
+    }
+    
+    .start-button {
+        font-size: 1.8em;
+        padding: 15px 25px 5px 25px;
+    }
+    
+    .info-button {
+        font-size: 0.8em;
+    }
+    
+    .nav-buttons {
+        gap: 15px;
+    }
+    
+    .nav-button {
+        font-size: 0.9em;
+    }
+    
+    .back-button {
+        width: 45px;
+        height: 45px;
+        bottom: 25px;
+        left: 25px;
+    }
+    
+    .box-container {
+        grid-template-columns: repeat(2, 1fr); /* 모바일에서는 2열로 변경 */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    h2 {
+        font-size: 1.5em;
+    }
+    
+    .start-button {
+        font-size: 1.5em;
+        padding: 12px 20px 5px 20px;
+    }
+    
+    .info-button {
+        font-size: 0.7em;
+        padding: 6px 12px 2px 12px;
+    }
+    
+    .nav-buttons {
+        gap: 10px;
+    }
+    
+    .nav-button {
+        font-size: 0.8em;
+    }
+    
+    .back-button {
+        width: 40px;
+        height: 40px;
+        bottom: 20px;
+        left: 20px;
+    }
+}
+
+.top-buttons {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.choose-text {
+    font-size: 2em;
+    font-weight: 500;
+    color: #000;
+    padding: 15px 7px 2px 7px;
+}
+
+.number-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.number-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: white;
+    border: 2px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.number-button span {
+    font-weight: bold;
+    font-size: 1.5em; /* 아이콘 크기 키움 */
+    line-height: 1; /* 줄 높이 조정 */
+    color: #000; /* 폰트 색상 검정색으로 설정 */
+}
+
+.number-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+}
+
+.active-number {
+    background-color: #000;
+    color: white;
+}
+
+.active-number span {
+    color: white;
+}
+
+/* 뱃지 팝업창 스타일 */
+.badge-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.badge-popup-content {
+    background-color: white;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    position: relative;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.badge-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.badge-popup-title {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #000;
+    margin: 0;
+}
+
+.close-badge-popup {
+    font-size: 2.5em;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.2s ease;
+}
+
+.close-badge-popup:hover {
+    color: #000;
+}
+
+.badge-popup-image {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.badge-popup-image img {
+    max-width: 350px;
+    max-height: 350px;
+    object-fit: contain;
+}
+
+.badge-popup-story {
+    font-size: 1.3em;
+    line-height: 1.8;
+    color: #333;
+    white-space: pre-line;
+    padding: 10px 0;
+}
+
+/* 뱃지 이미지 스타일 */
+.badge-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 40px; /* 상단 패딩 */
+    height: 180px; /* 컨테이너 높이 조정 */
+    margin-top: 20px; /* 상단 마진 */
+    margin-bottom: 30px; /* 하단 마진 추가 */
+}
+
+.badge-image {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+}
+
+/* 1번 뱃지는 0.9배 크기로 */
+.box-frame:first-child .badge-image {
+    width: 162px;
+    height: 162px;
+} 

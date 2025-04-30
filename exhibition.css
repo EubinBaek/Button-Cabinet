@@ -1,0 +1,572 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+@font-face {
+    font-family: 'SF Mango Bingsoo';
+    src: url('SF망고빙수 OTF.otf') format('opentype');
+}
+
+* {
+    font-family: 'SF Mango Bingsoo', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    background-color: #fff;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    height: 100%;
+    padding-top: 180px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    text-align: center;
+    margin-top: 0;
+}
+
+h2 {
+    text-align: center;
+    font-size: 2.2em;
+    line-height: 1.3;
+    color: black;
+    letter-spacing: 0.1em;
+    margin: 0 0 10px 0;
+}
+
+.start-button {
+    padding: 20px 30px 5px 30px;
+    font-size: 2em;
+    background-color: white;
+    color: black;
+    border: 2px solid black;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    margin: 20px 0 10px 0;
+}
+
+.start-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+}
+
+.info-button {
+    padding: 5px 10px;
+    font-size: 0.9em;
+    background-color: transparent;
+    color: #666;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 5px;
+    text-decoration: underline;
+}
+
+.info-button:hover {
+    color: #333;
+}
+
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 24px 40px;
+    z-index: 100;
+    display: flex;
+    justify-content: flex-start;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-button {
+    background: transparent;
+    border: none;
+    color: #999;
+    font-size: 2em;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 15px 7px 2px 7px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-button::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #000;
+    transition: width 0.3s ease;
+}
+
+.nav-button:hover {
+    color: #000;
+}
+
+.nav-button:hover::after {
+    width: 100%;
+}
+
+.nav-button.active {
+    color: #000;
+}
+
+.nav-button.active::after {
+    width: 100%;
+}
+
+.back-button {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #000;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    z-index: 100;
+    font-size: 24px;
+    font-family: 'SF Mango Bingsoo', sans-serif;
+}
+
+.back-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+@media screen and (max-width: 768px) {
+    h2 {
+        font-size: 1.8em;
+    }
+    
+    .start-button {
+        font-size: 1.8em;
+        padding: 15px 25px 5px 25px;
+    }
+    
+    .info-button {
+        font-size: 0.8em;
+    }
+    
+    .nav-buttons {
+        gap: 15px;
+    }
+    
+    .nav-button {
+        font-size: 0.9em;
+    }
+    
+    .back-button {
+        width: 45px;
+        height: 45px;
+        bottom: 25px;
+        left: 25px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    h2 {
+        font-size: 1.5em;
+    }
+    
+    .start-button {
+        font-size: 1.5em;
+        padding: 12px 20px 5px 20px;
+    }
+    
+    .info-button {
+        font-size: 0.7em;
+        padding: 6px 12px 2px 12px;
+    }
+    
+    .nav-buttons {
+        gap: 10px;
+    }
+    
+    .nav-button {
+        font-size: 0.8em;
+    }
+    
+    .back-button {
+        width: 40px;
+        height: 40px;
+        bottom: 20px;
+        left: 20px;
+    }
+}
+
+/* 팝업창 스타일 */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+    font-family: 'SF Mango Bingsoo', sans-serif;
+}
+
+.close-popup {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #999;
+}
+
+.close-popup:hover {
+    color: #000;
+}
+
+.popup-content h3 {
+    font-size: 1.8em;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+.popup-content p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+@media screen and (max-width: 768px) {
+    .popup-content {
+        width: 90%;
+        padding: 25px;
+    }
+    
+    .popup-content h3 {
+        font-size: 1.6em;
+    }
+    
+    .popup-content p {
+        font-size: 1em;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .popup-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .popup-content h3 {
+        font-size: 1.4em;
+    }
+    
+    .popup-content p {
+        font-size: 0.9em;
+    }
+}
+
+/* 갤러리 스타일 */
+.exhibition-description {
+    font-family: 'Noto Sans KR', sans-serif;
+    text-align: center;
+    font-size: 1.2em;
+    color: #666;
+    margin: 0 0 20px 0;
+}
+
+.exhibition-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    width: 90%;
+    max-width: 1200px;
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 70vh;
+}
+
+.gallery-item {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.gallery-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.gallery-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover .gallery-image img {
+    transform: scale(1.05);
+}
+
+.gallery-info {
+    padding: 15px;
+}
+
+.gallery-info h3 {
+    font-size: 1.3em;
+    margin: 0 0 10px 0;
+    font-weight: 500;
+}
+
+.gallery-info p {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.9em;
+    color: #777;
+    margin: 0;
+}
+
+.no-items-message {
+    font-family: 'Noto Sans KR', sans-serif;
+    text-align: center;
+    font-size: 1.2em;
+    color: #999;
+    padding: 50px 20px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 600px;
+}
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    width: 90%;
+    max-width: 800px;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    text-align: center;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 30px;
+    font-weight: bold;
+    color: #555;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-modal:hover {
+    color: #000;
+}
+
+.modal-image-container {
+    width: 100%;
+    max-height: 60vh;
+    overflow: hidden;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.modal-image-container img {
+    width: 100%;
+    max-height: 60vh;
+    object-fit: contain;
+}
+
+#modal-title {
+    font-size: 1.6em;
+    margin: 0 0 15px 0;
+}
+
+#modal-date {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.9em;
+    color: #777;
+    margin: 15px 0;
+}
+
+.delete-button {
+    background-color: #ff3b30;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+
+.delete-button:hover {
+    background-color: #e02d22;
+}
+
+/* 모바일 반응형 스타일 */
+@media screen and (max-width: 768px) {
+    .exhibition-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .gallery-image {
+        height: 180px;
+    }
+    
+    .gallery-info h3 {
+        font-size: 1.2em;
+    }
+    
+    .modal-content {
+        padding: 20px;
+    }
+    
+    #modal-title {
+        font-size: 1.4em;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .exhibition-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .gallery-image {
+        height: 150px;
+    }
+    
+    .gallery-info h3 {
+        font-size: 1.1em;
+    }
+    
+    .modal-content {
+        padding: 15px;
+    }
+    
+    #modal-title {
+        font-size: 1.2em;
+    }
+}
+
+.number-buttons {
+    display: flex;
+    gap: 10px;
+    margin-left: 10px;
+}
+
+.number-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: white;
+    border: 2px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    font-size: 0.9em;
+}
+
+.number-button span {
+    transform: translateY(-1px);
+}
+
+.number-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+}
+
+#choose-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.top-buttons {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+/* 반응형 스타일 */
+@media screen and (max-width: 768px) {
+    /* 미디어 쿼리 내용 유지 */
+} 

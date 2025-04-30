@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EXHIBITION - 버튼 서랍장</title>
+    <link rel="stylesheet" href="exhibition.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-buttons">
+            <a href="home.html"><button class="nav-button">HOME</button></a>
+            <a href="btti.html"><button class="nav-button">BTTI</button></a>
+            <a href="cabinet.html"><button class="nav-button">CABINET</button></a>
+            <a href="javascript:void(0);" id="exhibitionButton"><button class="nav-button active">EXHIBITION</button></a>
+        </div>
+        <div class="top-buttons" id="choose-buttons">
+            <div class="number-buttons">
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="content">
+            <h2>여러분의 취향을 수집 중입니다.</h2>
+            <p class="exhibition-description"> </p>
+            
+            <div class="exhibition-gallery" id="exhibition-gallery">
+                <!-- 갤러리 작품들이 여기에 표시됩니다 -->
+                <div class="no-items-message" id="no-items-message">
+                    아직 출품된 작품이 없습니다. HOME으로 돌아가서 나만의 작품을 만들어보세요!
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 작품 상세 보기 모달 -->
+    <div id="item-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="modal-title"></h3>
+            <div class="modal-image-container">
+                <img id="modal-image" src="" alt="작품 이미지">
+            </div>
+            <p id="modal-date"></p>
+            <button id="delete-item" class="delete-button">작품 삭제</button>
+        </div>
+    </div>
+    
+    <a href="javascript:history.back();" class="back-button">
+        ←
+    </a>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const galleryEl = document.getElementById('exhibition-gallery');
+            const noItemsMessage = document.getElementById('no-items-message');
+            const modal = document.getElementById('item-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalImage = document.getElementById('modal-image');
+            const modalDate = document.getElementById('modal-date');
+            const closeModal = document.querySelector('.close-modal');
+            const deleteButton = document.getElementById('delete-item');
+            
+            let currentItemId = null;
+            
+            // 오래된 불필요한 데이터 정리
+            function cleanupStorageData() {
+                // 기존 localStorage 데이터 삭제 (이전 버전의 데이터)
+                localStorage.removeItem('exhibitionItems');
+                
+                // 오래된 세션 데이터 삭제 (날짜 기반)
+                try {
+                    for (let i = 0; i < sessionStorage.length; i++) {
+                        const key = sessionStorage.key(i);
+                        if (key && key.startsWith('exhibition')) {
+                            try {
+                                const data = JSON.parse(sessionStorage.getItem(key));
+                                if (data && data.timestamp) {
+                                    // 3일 이상 지난 데이터 삭제
+                                    const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
+                                    if (Date.now() - data.timestamp > threeDaysInMs) {
+                                        sessionStorage.removeItem(key);
+                                    }
+                                }
+                            } catch(e) {
+                                console.log('데이터 파싱 오류:', e);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.log('세션 데이터 정리 중 오류:', e);
+                }
+            }
+            
+            // 페이지 로드 시 스토리지 정리
+            cleanupStorageData();
+            
+            // 복구 메시지 확인 및 표시
+            const recoveryMessage = sessionStorage.getItem('recovery_message');
+            if (recoveryMessage) {
+                alert(recoveryMessage);
+                sessionStorage.removeItem('recovery_message');
+            }
+            
+            // 저장된 작품 목록 가져오기
+            function loadExhibitionItems() {
+                let items = [];
+                try {
+                    const savedItemsStr = sessionStorage.getItem('exhibitionItems');
+                    if (savedItemsStr) {
+                        items = JSON.parse(savedItemsStr);
+                    }
+                } catch (e) {
+                    console.error('작품 데이터 로드 실패:', e);
+                }
+                
+                if (!Array.isArray(items) || items.length === 0) {
+                    noItemsMessage.style.display = 'block';
+                    galleryEl.innerHTML = '';
+                    return;
+                }
+                
+                noItemsMessage.style.display = 'none';
+                
+                // 최신 작품이 먼저 표시되도록 역순으로 정렬
+                items.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // 작품 수가 10개를 초과하면 가장 오래된 것을 삭제
+                if (items.length > 10) {
+                    items = items.slice(0, 10);
+                    // 변경된 목록 저장
+                    try {
+                        sessionStorage.setItem('exhibitionItems', JSON.stringify(items));
+                    } catch (e) {
+                        console.error('작품 목록 저장 실패:', e);
+                    }
+                }
+                
+                // 갤러리에 작품 추가 - 지연 로딩 방식 적용
+                galleryEl.innerHTML = '';
+                
+                items.forEach(item => {
+                    const galleryItem = document.createElement('div');
+                    galleryItem.className = 'gallery-item';
+                    galleryItem.setAttribute('data-id', item.id);
+                    
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'gallery-image';
+                    
+                    const img = document.createElement('img');
+                    // 이미지가 로드되기 전에 로딩 표시
+                    img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='; // 1x1 투명 GIF
+                    img.alt = item.title;
+                    
+                    // 이미지 지연 로딩
+                    setTimeout(() => {
+                        img.src = item.imageData;
+                    }, 100);
+                    
+                    const infoContainer = document.createElement('div');
+                    infoContainer.className = 'gallery-info';
+                    
+                    const title = document.createElement('h3');
+                    title.textContent = item.title;
+                    
+                    const date = document.createElement('p');
+                    date.textContent = formatDate(item.date);
+                    
+                    imageContainer.appendChild(img);
+                    infoContainer.appendChild(title);
+                    infoContainer.appendChild(date);
+                    
+                    galleryItem.appendChild(imageContainer);
+                    galleryItem.appendChild(infoContainer);
+                    
+                    galleryEl.appendChild(galleryItem);
+                    
+                    // 작품 클릭 이벤트
+                    galleryItem.addEventListener('click', function() {
+                        const itemId = parseInt(this.getAttribute('data-id'));
+                        showItemDetails(itemId);
+                    });
+                });
+            }
+            
+            // 날짜 포맷 함수
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                
+                return `${year}-${month}-${day} ${hours}:${minutes}`;
+            }
+            
+            // 작품 상세 정보 표시
+            function showItemDetails(itemId) {
+                const items = JSON.parse(sessionStorage.getItem('exhibitionItems')) || [];
+                const item = items.find(i => i.id === itemId);
+                
+                if (!item) return;
+                
+                currentItemId = itemId;
+                modalTitle.textContent = item.title;
+                
+                // 이미지 소스를 변경하기 전에 로딩 인디케이터 표시
+                modalImage.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+                setTimeout(() => {
+                    modalImage.src = item.imageData;
+                }, 10);
+                
+                modalDate.textContent = `등록일: ${formatDate(item.date)}`;
+                
+                modal.style.display = 'flex';
+            }
+            
+            // 작품 삭제 함수
+            function deleteItem(itemId) {
+                let items = JSON.parse(sessionStorage.getItem('exhibitionItems')) || [];
+                items = items.filter(item => item.id !== itemId);
+                
+                // 타임스탬프 추가
+                const itemsWithTimestamp = {
+                    timestamp: Date.now()
+                };
+                
+                try {
+                    // 변경된 목록 저장
+                    sessionStorage.setItem('exhibitionItems', JSON.stringify(items));
+                    modal.style.display = 'none';
+                    loadExhibitionItems();
+                } catch (e) {
+                    console.error('작품 삭제 후 저장 실패:', e);
+                    alert('저장 중 오류가 발생했습니다. 페이지를 새로고침하면 목록이 갱신됩니다.');
+                    // 오류 발생 시 페이지 새로고침
+                    window.location.reload();
+                }
+            }
+            
+            // 모달 닫기
+            closeModal.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            // 모달 외부 클릭 시 닫기
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // 삭제 버튼 클릭
+            deleteButton.addEventListener('click', function() {
+                if (currentItemId) {
+                    if (confirm('정말로 이 작품을 삭제하시겠습니까?')) {
+                        deleteItem(currentItemId);
+                    }
+                }
+            });
+            
+            // 초기 작품 목록 로드
+            loadExhibitionItems();
+        });
+    </script>
+</body>
+</html>

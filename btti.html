@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>단추유형검사 - BTTI</title>
+    <link rel="stylesheet" href="btti.css">
+    <script src="grid-effect.js"></script>
+    <!-- EmailJS 스크립트 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+    <div class="grid-container">
+        <div class="grid-effect"></div>
+    </div>
+    <div class="night-overlay"></div>
+    <nav class="top-nav">
+        <div class="nav-buttons">
+            <a href="home.html"><button class="nav-button">HOME</button></a>
+            <a href="btti.html"><button class="nav-button active">BTTI</button></a>
+            <a href="cabinet.html"><button class="nav-button">CABINET</button></a>
+            <a href="exhibition.html"><button class="nav-button">EXHIBITION</button></a>
+        </div>
+        <div class="top-buttons" id="choose-buttons">
+            <div class="number-buttons">
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="content" id="btti-content">
+            <h2>단추유형검사<br>Button Type Indicator Test</h2>
+            <p class="btti-description">
+                '단추유형검사'는<br>
+                자신만의 취향을 알아가는 질문들을 통해<br>
+                나에게 가장 어울리는 단추 유형을<br>
+                알아볼 수 있는 유사심리테스트입니다.
+            </p>
+            <button class="start-button" id="startBttiButton">START</button>
+            <button class="info-button" id="btttiInfoButton">자세한 방법 보기</button>
+        </div>
+        
+        <!-- 검사 안내 화면 -->
+        <div class="content" id="btti-intro" style="display: none;">
+            <div class="intro-message">
+                <p>⚠️ 단추 유형 검사는 99.9% 정확합니다.</p>
+                <p>(단, 아무 근거는 없습니다)</p>
+                <p>이 검사는 당신의 삶을 바꾸지는 않지만,</p>
+                <p>여러분의 마음 속 단추 정체성을 발견할 수 있어요</p>
+            </div>
+            <button class="start-button" id="nextButton">NEXT</button>
+        </div>
+        
+        <!-- 검사 화면 (추후 구현) -->
+        <div class="content" id="btti-test" style="display: none;">
+            <div class="test-container">
+                <div class="question-container" id="question-1">
+                    <h3 class="question-number">질문 1</h3>
+                    <p class="question-text">물건을 고를 때 가장 중요한 것은?</p>
+                    <div class="options-container">
+                        <button class="option-button" data-type="A">내구성과 실용성</button>
+                        <button class="option-button" data-type="B">한눈에 반하는 색감과 개성</button>
+                        <button class="option-button" data-type="C">독특하고 특별한 디테일 요소</button>
+                        <button class="option-button" data-type="D">고를 때의 분위기와 감성</button>
+                    </div>
+                </div>
+                
+                <div class="question-container" id="question-2" style="display: none;">
+                    <h3 class="question-number">질문 2</h3>
+                    <p class="question-text">계획이 없는 날, 가장 끌리는 활동은?</p>
+                    <div class="options-container">
+                        <button class="option-button" data-type="A">그동안 못했던 정리나 할 일 처리하기</button>
+                        <button class="option-button" data-type="B">즉흥 여행이나 새로운 것을 시도하기</button>
+                        <button class="option-button" data-type="C">조용한 곳에서 생각 정리, 기록</button>
+                        <button class="option-button" data-type="D">내가 좋아하는 것과 나만의 시간 보내기</button>
+                    </div>
+                </div>
+                
+                <div class="question-container" id="question-3" style="display: none;">
+                    <h3 class="question-number">질문 3</h3>
+                    <p class="question-text">내 방을 꾸민다면?</p>
+                    <div class="options-container">
+                        <button class="option-button" data-type="A">심플하고 수납 중심으로 깔끔하게</button>
+                        <button class="option-button" data-type="B">내 취향가득 소품들로 자유롭게 배치</button>
+                        <button class="option-button" data-type="C">톤온톤 또는 부드러운 분위기</button>
+                        <button class="option-button" data-type="D">우드 가구를 활용한 감성 한가득</button>
+                    </div>
+                </div>
+                
+                <div class="question-container" id="question-4" style="display: none;">
+                    <h3 class="question-number">질문 4</h3>
+                    <p class="question-text">친구들이 당신에게 자주 하는 말은?</p>
+                    <div class="options-container">
+                        <button class="option-button" data-type="A">너한테 맡기면 든든해</button>
+                        <button class="option-button" data-type="B">넌 정말 에너지 넘치고 활기차</button>
+                        <button class="option-button" data-type="C">넌 뭔가 조용히 다 알고 있는 것 같아</button>
+                        <button class="option-button" data-type="D">너만의 분위기나 감각이 진짜 좋아</button>
+                    </div>
+                </div>
+                
+                <div class="question-container" id="question-5" style="display: none;">
+                    <h3 class="question-number">질문 5</h3>
+                    <p class="question-text">나는 감정을 표현할 때?</p>
+                    <div class="options-container">
+                        <button class="option-button" data-type="A">최대한 감정소비 없이 해결하려 한다</button>
+                        <button class="option-button" data-type="B">감정 그대로 솔직하게 드러내며 표현한다</button>
+                        <button class="option-button" data-type="C">바로 말하진 않지만 글, 눈빛, 행동으로 드러낸다</button>
+                        <button class="option-button" data-type="D">감정을 말로 정리한 뒤에, 상대방에게 전달한다</button>
+                    </div>
+                </div>
+                
+                <div class="question-container" id="question-6" style="display: none;">
+                    <h3 class="question-number">질문 6</h3>
+                    <p class="question-text">내가 중요하게 생각하는 관계 스타일은?</p>
+                    <div class="options-container">
+                        <button class="option-button" data-type="A">믿음과 신뢰가 돈독한 관계</button>
+                        <button class="option-button" data-type="B">서로 공감할 수 있는 유쾌한 관계</button>
+                        <button class="option-button" data-type="C">깊은 대화가 가능한, 오래가는 관계</button>
+                        <button class="option-button" data-type="D">나와의 결이 비슷한 관계</button>
+                    </div>
+                </div>
+                
+                <div class="question-container" id="question-7" style="display: none;">
+                    <h3 class="question-number">질문 7</h3>
+                    <p class="question-text">나의 파우치를 꾸민다면</p>
+                    <div class="options-container">
+                        <button class="option-button" data-type="A">기능성과 알찬 구성</button>
+                        <button class="option-button" data-type="B">스티커, 키링같은 소품 주렁주렁</button>
+                        <button class="option-button" data-type="C">남들이 쉽게 안을 볼 수 없는 구조</button>
+                        <button class="option-button" data-type="D">재질의 촉감이 좋아서 포근한 느낌</button>
+                    </div>
+                </div>
+                
+                <div class="question-container" id="question-8" style="display: none;">
+                    <h3 class="question-number">질문 8</h3>
+                    <p class="question-text">어떠한 작업/과제를 할 때 나는?</p>
+                    <div class="options-container">
+                        <button class="option-button" data-type="A">계획부터 짜고 효율적으로 순서대로 진행</button>
+                        <button class="option-button" data-type="B">아이디어 구상 후,자유롭게 흐름을 따라</button>
+                        <button class="option-button" data-type="C">전체 맥락을 고려하여 하나씩 차근차근</button>
+                        <button class="option-button" data-type="D">감에 따라,손에 잡히는 대로 자연스럽게</button>
+                    </div>
+                </div>
+                
+                <div class="question-container" id="question-9" style="display: none;">
+                    <h3 class="question-number">질문 9</h3>
+                    <p class="question-text">나를 한 마디로 표현한다면?</p>
+                    <div class="options-container">
+                        <button class="option-button" data-type="A">단단하고 믿을 수 있는 사람</button>
+                        <button class="option-button" data-type="B">자유롭고 상상력이 넘치는 사람</button>
+                        <button class="option-button" data-type="C">조용하고 생각이 깊은 사람</button>
+                        <button class="option-button" data-type="D">독특하고 감성적인 것이 잘 어울리는 사람</button>
+                    </div>
+                </div>
+                
+                <div class="test-navigation">
+                    <button class="test-button" id="test-next-button" disabled>NEXT</button>
+                </div>
+
+                <!-- 결과 보기 버튼 (9번 질문에서만 표시) -->
+                <div class="result-navigation" style="display: none;">
+                    <button class="test-button" id="show-result-button">결과보기</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 결과 분석 화면 -->
+        <div class="content" id="btti-result" style="display: none;">
+            <h2 class="result-title">당신의 단추 유형은...</h2>
+            <div class="result-container">
+                <div class="result-type-container">
+
+                    <h3 id="result-type-name" class="result-type-name"></h3>
+                </div>
+                <p id="result-description" class="result-description"></p>
+                <div class="result-match">
+                    <p class="match-title">찰떡궁합 단추유형:</p>
+                    <p id="result-match" class="match-text"></p>
+                </div>
+                
+                <div class="email-subscription">
+                    <p class="email-text">단추유형검사 결과를 이메일로 받아보세요</p>
+                    <div class="email-input-container">
+                        <input type="email" class="email-input" placeholder="이메일 주소를 입력하세요">
+                        <button class="email-submit-button">보내기</button>
+                    </div>
+                </div>
+                
+                <div class="result-buttons">
+                    <button class="result-button" id="returnToHomeButton">처음으로</button>
+                    <button class="result-button" id="retakeTestButton">다시 검사하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="home.html" class="back-button">
+        ←
+    </a>
+    
+    <!-- 관리자 모드 링크 -->
+    <div class="admin-link">
+        <a href="javascript:void(0);" id="adminModeLink">관리자 모드</a>
+    </div>
+    
+    <!-- 질문 편집 패널 (관리자 모드) -->
+    <div class="admin-panel" id="adminPanel" style="display: none;">
+        <div class="admin-panel-content">
+            <h3>질문 및 보기 편집</h3>
+            <div class="question-editor">
+                <div class="editor-group">
+                    <label for="questionNumber">질문 번호:</label>
+                    <select id="questionNumber">
+                        <option value="1">질문 1</option>
+                        <option value="2">질문 2</option>
+                        <option value="3">질문 3</option>
+                        <option value="4">질문 4</option>
+                        <option value="5">질문 5</option>
+                        <option value="6">질문 6</option>
+                        <option value="7">질문 7</option>
+                        <option value="8">질문 8</option>
+                        <option value="9">질문 9</option>
+                    </select>
+                </div>
+                
+                <div class="editor-group">
+                    <label for="questionText">질문 내용:</label>
+                    <textarea id="questionText" rows="2" placeholder="질문 내용을 입력하세요"></textarea>
+                </div>
+                
+                <div class="editor-group">
+                    <label>보기 (A~D):</label>
+                    <div class="option-inputs">
+                        <div class="option-input-group">
+                            <span class="option-label">A:</span>
+                            <input type="text" id="optionA" placeholder="A 보기 내용">
+                        </div>
+                        <div class="option-input-group">
+                            <span class="option-label">B:</span>
+                            <input type="text" id="optionB" placeholder="B 보기 내용">
+                        </div>
+                        <div class="option-input-group">
+                            <span class="option-label">C:</span>
+                            <input type="text" id="optionC" placeholder="C 보기 내용">
+                        </div>
+                        <div class="option-input-group">
+                            <span class="option-label">D:</span>
+                            <input type="text" id="optionD" placeholder="D 보기 내용">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="editor-controls">
+                    <button id="saveQuestion">저장</button>
+                    <button id="closeAdminPanel">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 팝업창 -->
+    <div class="popup" id="bttiInfoPopup">
+        <div class="popup-content">
+            <div class="popup-header-container">
+                <div class="popup-header">
+                    <h3>자세한 방법</h3>
+                </div>
+                <div class="close-popup-container">
+                    <div class="close-popup">&times;</div>
+                </div>
+            </div>
+            <div class="popup-body">
+                <div class="info-box box-1">
+                    <p>질문에 솔직하게 대답해 주세요.<br>정답이 없는 질문들입니다.</p>
+                </div>
+                <div class="arrow-down">
+                    ↓
+                </div>
+                <div class="info-box box-2">
+                    <p>테스트 결과를 통해<br>나에게 맞는 단추 유형을 확인해보세요!</p>
+                </div>
+                <button class="start-button popup-start">START</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 기본 요소들 참조
+            const bttiContent = document.getElementById('btti-content');
+            const bttiIntro = document.getElementById('btti-intro');
+            const bttiTest = document.getElementById('btti-test');
+            const bttiResult = document.getElementById('btti-result');
+            
+            const startBttiButton = document.getElementById('startBttiButton');
+            const nextButton = document.getElementById('nextButton');
+            const testNextButton = document.getElementById('test-next-button');
+            const showResultButton = document.getElementById('show-result-button');
+            
+            const bttiInfoButton = document.getElementById('btttiInfoButton');
+            const bttiInfoPopup = document.getElementById('bttiInfoPopup');
+            const closePopup = document.querySelector('.close-popup');
+            const popupStart = document.querySelector('.popup-start');
+            
+            const returnToHomeButton = document.getElementById('returnToHomeButton');
+            const retakeTestButton = document.getElementById('retakeTestButton');
+            
+            // 테스트 상태 변수
+            let currentQuestion = 1;
+            const totalQuestions = 9;
+            let answers = {};
+            
+            // 초기 화면 설정 - 페이지 로드 시 항상 초기 화면만 표시
+            bttiContent.style.display = 'flex';
+            bttiIntro.style.display = 'none';
+            bttiTest.style.display = 'none';
+            bttiResult.style.display = 'none';
+            
+            // 세션 스토리지 초기화
+            sessionStorage.removeItem('bttiTestState');
+            sessionStorage.removeItem('bttiResultType');
+            sessionStorage.removeItem('bttiResultShown');
+            
+            // 결과 유형 정보
+            const resultTypes = {
+                'A': {
+                    name: '베이직 코튼 4구 고정 단추 유형',
+                    description: '당신은 정확하고 실용적인 사람입니다.<br>깔끔하고 정돈된 것을 좋아하며, 흐트러짐 없이 중심을 잡아주는 존재예요.<br>티나진 않지만, 빠지면 절대 안 되는 타입.<br>누군가의 옷깃을, 마음을, 구조를 단단하게 여며주는 단추 같은 사람입니다.',
+                    match: '핸드메이드 무늬목 나무 단추 유형'
+                },
+                'B': {
+                    name: '무지개 반짝이 스팽글 단추 유형',
+                    description: '당신은 에너지가 넘치고, 감각적인 자유인입니다.<br>즉흥적인 도전을 즐기고, 예측할 수 없는 상황에서 자신만의 개성이 드러나죠!<br>어딜가도 중심이 되며, 모든 공간을 밝게 채우는 타입입니다.<br>누구보다 다양한 것들을 사랑하며, 날 표현하길 좋아해요.<br>한 번 보면 잊히지 않는, 그런 존재.',
+                    match: '무광 아크릴 단추 유형'
+                },
+                'C': {
+                    name: '무광 아크릴 단추 유형',
+                    description: '당신은 섬세하고 통찰력 있는 사람입니다.<br>겉으로 드러내기보다, 조용히 관찰하고 깊이 있게 공감해요.<br>겉에서 잘 보이지 않는 속단추처럼, 당신의 매력은 가까워질수록 선명해집니다.<br>외면보단 내면, 말보다 행동, 시선을 중시하는 편입니다.',
+                    match: '무지개 반짝이 스팽글 단추 유형'
+                },
+                'D': {
+                    name: '핸드메이드 무늬목 나무 단추 유형',
+                    description: '당신은 조용하지만 자기만의 감각이 뚜렷한 사람입니다.<br>분위기와 질감, 감정의 결을 중요하게 여겨요.<br>무언가를 말로 설명하기보단, 만들어내고 손으로 표현하는 스타일입니다.<br>자연스러운 불완전함을 사랑하고, 오래된 것들에 정을 붙입니다.<br>세상에 하나뿐인 감성 단추, 그것이 당신입니다.',
+                    match: '베이직 코튼 4구 고정 단추 유형'
+                }
+            };
+            
+            // 1. 버튼 이벤트 리스너 설정
+            
+            // START 버튼 (첫 화면에서 안내 화면으로)
+            if(startBttiButton) {
+                startBttiButton.onclick = function() {
+                bttiContent.style.display = 'none';
+                bttiIntro.style.display = 'flex';
+                
+                    // 상태 초기화
+                    sessionStorage.removeItem('bttiTestState');
+                    sessionStorage.removeItem('bttiResultType');
+                    sessionStorage.removeItem('bttiResultShown');
+                };
+            }
+            
+            // 안내 화면에서 NEXT 버튼 (안내 화면에서 테스트 화면으로)
+            if(nextButton) {
+                nextButton.onclick = function() {
+                bttiIntro.style.display = 'none';
+                bttiTest.style.display = 'flex';
+                initializeTest();
+                };
+            }
+            
+            // 테스트 NEXT 버튼 (다음 질문으로)
+            if(testNextButton) {
+                testNextButton.onclick = function() {
+                    const current = getCurrentQuestion();
+                    if(current < totalQuestions) {
+                        showQuestion(current + 1);
+                    }
+                };
+            }
+            
+            // 결과 보기 버튼
+            if(showResultButton) {
+                showResultButton.onclick = function() {
+                calculateResult();
+                };
+            }
+            
+            // 처음으로 버튼
+            if(returnToHomeButton) {
+                returnToHomeButton.onclick = function() {
+                bttiResult.style.display = 'none';
+                bttiContent.style.display = 'flex';
+                
+                    // 상태 초기화
+                    sessionStorage.removeItem('bttiTestState');
+                    sessionStorage.removeItem('bttiResultType');
+                    sessionStorage.removeItem('bttiResultShown');
+                };
+            }
+            
+            // 다시 검사하기 버튼
+            if(retakeTestButton) {
+                retakeTestButton.onclick = function() {
+                bttiResult.style.display = 'none';
+                bttiTest.style.display = 'flex';
+                
+                    sessionStorage.removeItem('bttiResultType');
+                    sessionStorage.removeItem('bttiResultShown');
+                
+                initializeTest();
+                };
+            }
+            
+            // 정보 버튼
+            if(bttiInfoButton) {
+                bttiInfoButton.onclick = function() {
+                    bttiInfoPopup.style.display = 'flex';
+                };
+            }
+            
+            // 팝업 닫기 버튼
+            if(closePopup) {
+                closePopup.onclick = function() {
+                    bttiInfoPopup.style.display = 'none';
+                };
+            }
+            
+            // 팝업 시작 버튼
+            if(popupStart) {
+                popupStart.onclick = function() {
+                    bttiInfoPopup.style.display = 'none';
+                    if(startBttiButton) startBttiButton.click();
+                };
+            }
+            
+            // 옵션 버튼 클릭 이벤트
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.onclick = function() {
+                    const questionId = this.closest('.question-container').id;
+                    const questionNumber = parseInt(questionId.split('-')[1]);
+                    const answerType = this.getAttribute('data-type');
+                    
+                    // 같은 질문의 다른 옵션들의 선택 상태 제거
+                    this.closest('.options-container').querySelectorAll('.option-button').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // 현재 클릭한 옵션 선택 상태로 변경
+                    this.classList.add('selected');
+                    
+                    // 답변 저장
+                    answers[questionNumber] = answerType;
+                    
+                    // 세션 스토리지에 현재 답변 상태 저장
+                    saveTestState();
+                    
+                    // 다음 버튼 활성화
+                    if(testNextButton) testNextButton.disabled = false;
+                    
+                    // 마지막 질문이면 결과 버튼 활성화
+                    if(questionNumber === totalQuestions && showResultButton) {
+                        showResultButton.disabled = false;
+                    }
+                };
+            });
+            
+            // 2. 핵심 기능
+            
+            // 테스트 초기화 함수
+            function initializeTest() {
+                currentQuestion = 1;
+                answers = {};
+                
+                const testNavigation = document.querySelector('.test-navigation');
+                const resultNavigation = document.querySelector('.result-navigation');
+                
+                if(testNavigation) testNavigation.style.display = 'flex';
+                if(resultNavigation) resultNavigation.style.display = 'none';
+                
+                // 모든 선택 상태 제거
+                document.querySelectorAll('.option-button').forEach(button => {
+                    button.classList.remove('selected');
+                });
+                
+                // 테스트 상태 초기화
+                sessionStorage.removeItem('bttiTestState');
+                
+                showQuestion(1);
+            }
+            
+            // 현재 질문 가져오기
+            function getCurrentQuestion() {
+                for(let i = 1; i <= totalQuestions; i++) {
+                    const question = document.getElementById(`question-${i}`);
+                    if(question && question.style.display === 'block') {
+                        return i;
+                    }
+                }
+                return 1;
+            }
+            
+            // 질문 표시 함수
+            function showQuestion(questionNumber) {
+                // 모든 질문 숨기기
+                document.querySelectorAll('.question-container').forEach(container => {
+                    container.style.display = 'none';
+                });
+                
+                // 현재 질문 표시
+                const currentQuestionElement = document.getElementById(`question-${questionNumber}`);
+                if(currentQuestionElement) {
+                    currentQuestionElement.style.display = 'block';
+                }
+                
+                // 버튼 상태 설정
+                if(testNextButton) {
+                    testNextButton.disabled = !answers[questionNumber];
+                }
+                
+                if(questionNumber === totalQuestions) {
+                    if(showResultButton) {
+                        showResultButton.disabled = !answers[questionNumber];
+                    }
+                    
+                    const testNavigation = document.querySelector('.test-navigation');
+                    const resultNavigation = document.querySelector('.result-navigation');
+                    
+                    if(testNavigation) testNavigation.style.display = 'none';
+                    if(resultNavigation) resultNavigation.style.display = 'block';
+                }
+                
+                // 테스트 상태 저장
+                saveTestState();
+            }
+            
+            // 테스트 상태 저장
+            function saveTestState() {
+                const currentQuestionNum = getCurrentQuestion();
+                
+                const state = {
+                    timestamp: Date.now(),
+                    currentQuestion: currentQuestionNum,
+                    answers: answers
+                };
+                
+                sessionStorage.setItem('bttiTestState', JSON.stringify(state));
+            }
+            
+            // 결과 계산
+            function calculateResult() {
+                // 유형별 점수 계산
+                let scores = {
+                    'A': 0,
+                    'B': 0,
+                    'C': 0,
+                    'D': 0
+                };
+                
+                // 답변 유형별 점수 증가
+                for(const questionNumber in answers) {
+                    const answerType = answers[questionNumber];
+                    scores[answerType]++;
+                }
+                
+                // 최고 점수 유형 찾기
+                let maxScore = 0;
+                let resultType = '';
+                
+                for(const type in scores) {
+                    if(scores[type] > maxScore) {
+                        maxScore = scores[type];
+                        resultType = type;
+                    }
+                }
+                
+                // 결과 화면 표시
+                showResult(resultType);
+                
+                // 테스트 상태 삭제 및 결과 저장
+                sessionStorage.removeItem('bttiTestState');
+                
+                const resultData = {
+                    timestamp: Date.now(),
+                    type: resultType
+                };
+                
+                sessionStorage.setItem('bttiResultType', JSON.stringify(resultData));
+                sessionStorage.setItem('bttiResultShown', 'true');
+            }
+            
+            // 결과 화면 표시
+            function showResult(resultType) {
+                const resultInfo = resultTypes[resultType];
+                
+                const resultTypeLetter = document.getElementById('result-type-letter');
+                const resultTypeName = document.getElementById('result-type-name');
+                const resultDescription = document.getElementById('result-description');
+                const resultMatch = document.getElementById('result-match');
+                
+                if(resultTypeLetter) resultTypeLetter.textContent = resultType;
+                if(resultTypeName) resultTypeName.textContent = resultInfo.name;
+                if(resultDescription) resultDescription.innerHTML = resultInfo.description;
+                if(resultMatch) resultMatch.textContent = resultInfo.match;
+                
+                bttiTest.style.display = 'none';
+                bttiResult.style.display = 'flex';
+                
+                if(bttiResult) bttiResult.scrollTop = 0;
+            }
+            
+            // 3. 상태 저장/복원
+            
+            // 페이지 로드 시 상태 복원
+            function checkAndRestorePageState() {
+                // 페이지 초기화 - 항상 첫 화면만 표시
+                sessionStorage.removeItem('bttiTestState');
+                sessionStorage.removeItem('bttiResultType');
+                sessionStorage.removeItem('bttiResultShown');
+                
+                // 첫 화면만 표시
+                bttiContent.style.display = 'flex';
+                bttiIntro.style.display = 'none';
+                bttiTest.style.display = 'none';
+                bttiResult.style.display = 'none';
+            }
+            
+            // 불필요한 데이터 정리
+            function cleanupStorageData() {
+                // localStorage 데이터 제거
+                const localStorageKeys = ['pageState', 'currentImage', 'exhibitionItems', 'bttiTestState', 'bttiResultType', 'bttiResultShown'];
+                localStorageKeys.forEach(key => {
+                    localStorage.removeItem(key);
+                });
+                
+                // 오래된 세션 데이터 삭제
+                try {
+                    for(let i = 0; i < sessionStorage.length; i++) {
+                        const key = sessionStorage.key(i);
+                        if(key) {
+                            try {
+                                const data = JSON.parse(sessionStorage.getItem(key));
+                                if(data && data.timestamp) {
+                                    // 일주일 이상 지난 데이터 삭제
+                                    const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
+                                    if(Date.now() - data.timestamp > oneWeekInMs) {
+                                        sessionStorage.removeItem(key);
+                                    }
+                                }
+                            } catch(e) {
+                                // 파싱 오류는 무시
+                            }
+                        }
+                    }
+                } catch(e) {
+                    console.log('세션 데이터 정리 중 오류:', e);
+                }
+            }
+            
+            // 페이지 로드 시 실행
+            cleanupStorageData();
+            checkAndRestorePageState();
+        });
+    </script>
+    
+    <style>
+        /* 관리자 모드 스타일 */
+        .admin-link {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 100;
+            opacity: 0.6;
+        }
+        
+        .admin-link a {
+            color: #999;
+            text-decoration: none;
+            font-size: 0.8em;
+        }
+        
+        .admin-link a:hover {
+            color: #333;
+        }
+        
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .admin-panel-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .question-editor {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .editor-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .editor-group label {
+            font-weight: bold;
+            font-size: 1em;
+        }
+        
+        .editor-group select, 
+        .editor-group textarea, 
+        .editor-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        .option-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .option-label {
+            font-weight: bold;
+            width: 20px;
+        }
+        
+        .option-input-group input {
+            flex: 1;
+        }
+        
+        .editor-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .editor-controls button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        .editor-controls button:hover {
+            background-color: #555;
+        }
+    </style>
+</body>
+</html>
+
+
